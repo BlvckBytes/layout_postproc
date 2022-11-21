@@ -21,17 +21,17 @@ temp_folder = '/tmp' # Path for temporary file storage
 
 # //////////////////////////// Utilities ////////////////////////////
 
-"""
-Normalizes a tag string by splitting off it's namespace
-"""
 def normalize_tag(tagstr):
+  '''
+  Normalizes a tag string by splitting off it's namespace
+  '''
   return tagstr[tagstr.rindex('}') + 1:]
 
-"""
-Merges two bound keeping arrays by integrating the new information of
-the source into the destination
-"""
 def merge_bounds(dest: list[float], src: list[float]):
+  '''
+  Merges two bound keeping arrays by integrating the new information of
+  the source into the destination
+  '''
   if src[0] is not None and (dest[0] is None or src[0] < dest[0]):
     dest[0] = src[0]
   if src[0] is not None and (dest[1] is None or src[1] < dest[1]):
@@ -41,11 +41,11 @@ def merge_bounds(dest: list[float], src: list[float]):
   if src[0] is not None and (dest[3] is None or src[3] > dest[3]):
     dest[3] = src[3]
 
-"""
-Updates a bound keeping array by integrating the new
-information of a given point
-"""
 def update_bounds(dest: list[float], point: complex):
+  '''
+  Updates a bound keeping array by integrating the new
+  information of a given point
+  '''
   if dest[0] is None or point.real < dest[0]:
     dest[0] = point.real
   if dest[1] is None or point.imag < dest[1]:
@@ -55,10 +55,10 @@ def update_bounds(dest: list[float], point: complex):
   if dest[3] is None or point.imag > dest[3]:
     dest[3] = point.imag
 
-"""
-Resolves the SVG's dimensions into width and height in millimeters, if possible
-"""
 def resolve_dimensions(root: ET.Element) -> tuple[float, float] | None:
+  '''
+  Resolves the SVG's dimensions into width and height in millimeters, if possible
+  '''
   width = root.attrib['width']
   height = root.attrib['height']
 
@@ -70,12 +70,12 @@ def resolve_dimensions(root: ET.Element) -> tuple[float, float] | None:
   if width.endswith('cm') and height.endswith('cm'):
     return (float(width[:width.index('c')]) * 10, float(height[:height.index('c')]) * 10)
 
-"""
-Analyzes the SVG's scaling by reading it's width and height
-as millimeters and calculating how many millimeters there
-are per one user unit
-"""
 def analyze_scaling(root: ET.Element) -> tuple[float, float, float]:
+  '''
+  Analyzes the SVG's scaling by reading it's width and height
+  as millimeters and calculating how many millimeters there
+  are per one user unit
+  '''
   dim = resolve_dimensions(root)
 
   if dim is None:
@@ -96,20 +96,20 @@ def analyze_scaling(root: ET.Element) -> tuple[float, float, float]:
 
   return (width, height, result)
 
-"""
-Manipulates both the start- and the endpoint of a given command
-by offsetting them on both axies
-"""
 def manip_start_end(command, x_off: float, y_off: float):
+  '''
+  Manipulates both the start- and the endpoint of a given command
+  by offsetting them on both axies
+  '''
   command.start = complex(command.start.real + x_off, command.start.imag + y_off)
   command.end = complex(command.end.real + x_off, command.end.imag + y_off)
 
-"""
-Decides on a position in mm (top left is (0|0)) on the page
-where the SVG's top left position should be rendered at, based
-on it's width, height, page-padding and position choice
-"""
 def decide_svg_xy(width: int, height: int, padding: int, position: str) -> tuple[int, int]:
+  '''
+  decides on a position in mm (top left is (0|0)) on the page
+  where the svg's top left position should be rendered at, based
+  on it's width, height, page-padding and position choice
+  '''
   if position == 'TL':
     return (padding * mm, padding * mm)
 
@@ -139,12 +139,12 @@ def decide_svg_xy(width: int, height: int, padding: int, position: str) -> tuple
 
 # ///////////////////////// Element Handlers /////////////////////////
 
-"""
-Handles a path element by either manipulating every single command
-within it's description by the axies offsets or by calculating the
-min and max bounds of all coordinates available
-"""
 def handle_path(element: ET.Element, bounds_mode: bool, x_off: float, y_off: float) -> tuple[float, float, float, float]:
+  '''
+  Handles a path element by either manipulating every single command
+  within it's description by the axies offsets or by calculating the
+  min and max bounds of all coordinates available
+  '''
   # MinX, MinY, MaxX, MaxY
   bounds = [None, None, None, None]
 
@@ -172,22 +172,22 @@ def handle_path(element: ET.Element, bounds_mode: bool, x_off: float, y_off: flo
 
   element.attrib['d'] = path.d()
 
-"""
-Handles a circle element by either manipulating it's center point
-by the axies offsets or by returning that center point
-"""
 def handle_circle(element: ET.Element, bounds_mode: bool, x_off: float, y_off: float) -> complex:
+  '''
+  Handles a circle element by either manipulating it's center point
+  by the axies offsets or by returning that center point
+  '''
   if bounds_mode:
     return complex(float(element.attrib['cx']), float(element.attrib['cy']))
 
   element.attrib['cx'] = str(float(element.attrib['cx']) + x_off)
   element.attrib['cy'] = str(float(element.attrib['cy']) + y_off)
 
-"""
-Walk a group of elements recursively and either apply an axies
-offset or calculate it's min and max bounds
-"""
 def walk_group(group: ET.Element, bounds_mode: bool, x_off: float = 0, y_off: float = 0):
+  '''
+  Walk a group of elements recursively and either apply an axies
+  offset or calculate it's min and max bounds
+  '''
   # MinX, MinY, MaxX, MaxY
   bounds = [None, None, None, None]
 
@@ -233,10 +233,10 @@ def walk_group(group: ET.Element, bounds_mode: bool, x_off: float = 0, y_off: fl
 
 # /////////////////////////// Entry Point ///////////////////////////
 
-"""
-The main entry point of this program
-"""
 def main():
+  '''
+  The main entry point of this program
+  '''
   positions = [
     'TL', 'TC', 'TR',
     'CL', 'CC', 'CR',

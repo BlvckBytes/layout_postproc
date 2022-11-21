@@ -30,6 +30,8 @@ options:
                         Position of the content on the page
 ```
 
+If you don't want an enclosing rectangle at all, just set it's width to zero (0).
+
 ## Example
 
 This example has been rendered at position TL, with a page-padding of 10mm, a rectangle distance of 1.5mm, a rectangle width of 5mm and a rectangle color of black.

@@ -341,19 +341,28 @@ def main():
   svg_rlg = svg2rlg(temp_svg)
 
   out_path = os.path.join(os.path.dirname(input_path), 'layout_postproc.pdf')
-  xy_pos = decide_svg_xy(mmwidth, mmheight, page_padding_mm, position)
-
-  rotate = svg_rlg.height > svg_rlg.width
 
   # Auto-rotate if it's height could be narrower
-  if rotate:
+  do_rotate = svg_rlg.height > svg_rlg.width
+  if do_rotate:
     # Origin seems to be left center... shift back after rotating
     svg_rlg.translate(svg_rlg.height, 0)
     svg_rlg.rotate(90)
 
+    # Swap height and width
+    buf = mmheight
+    mmheight = mmwidth
+    mmwidth = buf
+
+  xy_pos = decide_svg_xy(mmwidth, mmheight, page_padding_mm, position)
+
   # Create a new blank A4 canvas at the output location and draw the temporary svg on it
   pdf_canvas = canvas.Canvas(out_path, pagesize=A4)
-  renderPDF.draw(svg_rlg, pdf_canvas, xy_pos[0], A4[1] - xy_pos[1] - mmheight * mm)
+
+  # Sometimes the PCB is too close to the top, this issue is still unresolved...
+  # Let's just add 3mm to make sure the printer doesn't cut it off.
+  renderPDF.draw(svg_rlg, pdf_canvas, xy_pos[0], A4[1] - xy_pos[1] - mmheight * mm - 3 * mm)
+
   pdf_canvas.save()
 
 if __name__ == '__main__':

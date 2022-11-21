@@ -352,8 +352,8 @@ def main():
     svg_rlg.rotate(90)
 
   # Create a new blank A4 canvas at the output location and draw the temporary svg on it
-  pdf_canvas = canvas.Canvas(out_path, pagesize=A4, bottomup=0)
-  renderPDF.draw(svg_rlg, pdf_canvas, xy_pos[0], xy_pos[1] + (0 if rotate else 2) * mm)
+  pdf_canvas = canvas.Canvas(out_path, pagesize=A4)
+  renderPDF.draw(svg_rlg, pdf_canvas, xy_pos[0], A4[1] - xy_pos[1] - mmheight * mm)
   pdf_canvas.save()
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 from reportlab.graphics import renderPDF
 from reportlab.lib.pagesizes import A4
-from svg.path import parse_path, Line, Move, Close, CubicBezier
+from svg.path import parse_path, Line, Move, Close, CubicBezier, Arc
 from svglib.svglib import svg2rlg
 
 # FIXME: Further investivate the issue where the svg gets drawn in a slightly "pushed down" manner if it's height increases
@@ -140,7 +140,7 @@ def handle_path(element: ET.Element, bounds_mode: bool, x_off: float, y_off: flo
   d = element.attrib['d']
   path = parse_path(d)
 
-  supported_commands = [Line, Move, Close, CubicBezier]
+  supported_commands = [Line, Move, Close, CubicBezier, Arc]
 
   for command in path:
     if not type(command) in supported_commands:

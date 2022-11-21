@@ -56,21 +56,35 @@ def update_bounds(dest: list[float], point: complex):
     dest[3] = point.imag
 
 """
+Resolves the SVG's dimensions into width and height in millimeters, if possible
+"""
+def resolve_dimensions(root: ET.Element) -> tuple[float, float] | None:
+  width = root.attrib['width']
+  height = root.attrib['height']
+
+  # Take millimeters as they are
+  if width.endswith('mm') and height.endswith('mm'):
+    return (float(width[:width.index('m')]), float(height[:height.index('m')]))
+
+  # Transform centimeters into millimeters
+  if width.endswith('cm') and height.endswith('cm'):
+    return (float(width[:width.index('c')]) * 10, float(height[:height.index('c')]) * 10)
+
+"""
 Analyzes the SVG's scaling by reading it's width and height
 as millimeters and calculating how many millimeters there
 are per one user unit
 """
 def analyze_scaling(root: ET.Element) -> tuple[float, float, float]:
-  width = root.attrib['width']
-  height = root.attrib['height']
+  dim = resolve_dimensions(root)
 
-  if not width.endswith('cm') or not height.endswith('cm'):
-    print('Only centimeters are supported as canvas dimensions')
+  if dim is None:
+    print("Could not resolve the SVG's dimensions, likely an unsupported unit")
     sys.exit(1)
 
   # The units of these values are now millimeters
-  width = float(width[:width.index('c')]) * 10
-  height = float(height[:height.index('c')]) * 10
+  width = dim[0]
+  height = dim[1]
 
   _, _, viewbox_width, viewbox_height = map(lambda x: float(x), root.attrib['viewBox'].split(' '))
 
